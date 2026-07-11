@@ -2,6 +2,7 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE } from '../consts';
 
 interface Props {
@@ -16,6 +17,8 @@ const { title, description } = Astro.props;
 
 <!-- Global Metadata -->
 <meta charset="utf-8" />
+<title>{SITE_TITLE}</title>
+<ClientRouter fallback="swap" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
@@ -33,7 +36,6 @@ const { title, description } = Astro.props;
 <link rel="canonical" href={canonicalURL} />
 
 <!-- Primary Meta Tags -->
-<title>{SITE_TITLE}</title>
 <meta name="description" content={description} />
 
 <!-- Open Graph / Facebook -->

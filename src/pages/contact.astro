@@ -18,7 +18,7 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 		<Header />
 		<main>
 			<h1>Contact</h1>
-			<form id="contact-form">
+			<form id="contact-form" data-submit-url={SUBMIT_URL}>
 				<label>
 					Name
 					<input name="name" autocomplete="name" required />
@@ -43,53 +43,69 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 		</main>
 		<Footer />
 
-		<script is:inline define:vars={{ submitUrl: SUBMIT_URL }}>
-			const form = document.querySelector('#contact-form');
-			const status = document.querySelector('#form-status');
-			const button = form.querySelector('button[type="submit"]');
+		<script is:inline data-astro-rerun>
+			(() => {
+				const form = document.querySelector('#contact-form');
+				const submitUrl = form.dataset.submitUrl;
+				const status = document.querySelector('#form-status');
+				const button = form.querySelector('button[type="submit"]');
+				const widget = form.querySelector('.cf-turnstile');
+				const responseField = () => widget.querySelector('input[name="cf-turnstile-response"]');
 
-			form.addEventListener('submit', async (event) => {
-				event.preventDefault();
-				const formData = new FormData(form);
-				const token = formData.get('cf-turnstile-response');
-
-				if (!token) {
-					status.textContent = 'Please complete the verification.';
-					return;
+				if (window.turnstile && widget && !responseField()) {
+					window.turnstile.render(widget);
 				}
 
-				button.disabled = true;
-				status.textContent = 'Sending…';
+				form.addEventListener('submit', async (event) => {
+					event.preventDefault();
+					const formData = new FormData(form);
+					const token = formData.get('cf-turnstile-response');
 
-				try {
-					const response = await fetch(submitUrl, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							name: formData.get('name'),
-							email: formData.get('email'),
-							message: formData.get('message'),
-							token,
-						}),
-					});
-					const result = await response.json().catch(() => ({}));
-
-					if (!response.ok || result.success !== true) {
-						throw new Error(result.error || 'Message delivery is temporarily unavailable.');
+					if (!token) {
+						status.textContent = 'Please complete the verification.';
+						return;
 					}
 
-					form.reset();
-					window.turnstile?.reset();
-					status.textContent = 'Sent.';
-				} catch (error) {
-					status.textContent = error instanceof Error
-						? error.message
-						: 'Message delivery is temporarily unavailable.';
-					window.turnstile?.reset();
-				} finally {
-					button.disabled = false;
-				}
-			});
+					button.disabled = true;
+					status.textContent = 'Sending…';
+
+					try {
+						const response = await fetch(submitUrl, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								name: formData.get('name'),
+								email: formData.get('email'),
+								message: formData.get('message'),
+								token,
+							}),
+						});
+						const result = await response.json().catch(() => ({}));
+
+						if (!response.ok || result.success !== true) {
+							throw new Error(result.error || 'Message delivery is temporarily unavailable.');
+						}
+
+						form.reset();
+						window.turnstile?.reset();
+						status.textContent = 'Sent.';
+					} catch (error) {
+						status.textContent = error instanceof Error
+							? error.message
+							: 'Message delivery is temporarily unavailable.';
+						window.turnstile?.reset();
+					} finally {
+						button.disabled = false;
+					}
+				});
+
+				const removeTurnstile = () => {
+					const widgetId = responseField()?.id.replace(/_response$/, '');
+					if (widgetId) window.turnstile?.remove(widgetId);
+					document.removeEventListener('astro:before-swap', removeTurnstile);
+				};
+				document.addEventListener('astro:before-swap', removeTurnstile);
+			})();
 		</script>
 	</body>
 </html>
