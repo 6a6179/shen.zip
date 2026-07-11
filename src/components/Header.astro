@@ -5,7 +5,7 @@ import HeaderLink from './HeaderLink.astro';
 
 <header>
 	<a class="wordmark" href="/" aria-label={`${SITE_TITLE} home`}>
-		shenzip
+		<span>shen</span><span class="dot" aria-hidden="true">.</span><span>zip</span>
 	</a>
 	<nav>
 		<HeaderLink href="/">Home</HeaderLink>
@@ -28,5 +28,8 @@ import HeaderLink from './HeaderLink.astro';
 		font-weight: 700;
 		letter-spacing: -0.04em;
 		text-decoration: none;
+	}
+	.dot {
+		color: var(--link);
 	}
 </style>
