@@ -1,12 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 32 32">
 	<style>
 		.mark { stroke: #171717; }
-		.dot { fill: #171717; }
 		@media (prefers-color-scheme: dark) {
 			.mark { stroke: #f2f2f2; }
-			.dot { fill: #f2f2f2; }
 		}
 	</style>
 	<path class="mark" d="M23 8H12a4 4 0 0 0 0 8h8a4 4 0 0 1 0 8H9" stroke-width="3.25" stroke-linecap="round" />
-	<circle class="dot" cx="25.5" cy="24" r="1.75" />
 </svg>
