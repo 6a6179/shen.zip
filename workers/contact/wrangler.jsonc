@@ -1,0 +1,21 @@
+{
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	"name": "shen-zip-contact",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-07-11",
+	"compatibility_flags": ["nodejs_compat"],
+	"services": [
+		{
+			"binding": "TURNSTILE",
+			"service": "turnstile-siteverify-shen-zip"
+		}
+	],
+	"vars": {
+		"ALLOWED_ORIGINS": "https://shen.zip,https://www.shen.zip,http://localhost:4321,http://127.0.0.1:4321",
+		"TURNSTILE_ACTION": "turnstile-spin-v1",
+		"TURNSTILE_HOSTNAMES": "shen.zip,www.shen.zip,localhost,127.0.0.1"
+	},
+	"observability": {
+		"enabled": true
+	}
+}

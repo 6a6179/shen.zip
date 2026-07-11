@@ -1,0 +1,137 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+
+const SITEKEY = '0x4AAAAAADzncJEwqw9wYIHB';
+const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Contact | ${SITE_TITLE}`} description="Get in touch." />
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Contact</h1>
+			<form id="contact-form">
+				<label>
+					Name
+					<input name="name" autocomplete="name" required />
+				</label>
+				<label>
+					Email
+					<input name="email" type="email" autocomplete="email" required />
+				</label>
+				<label>
+					Message
+					<textarea name="message" required></textarea>
+				</label>
+				<div
+					class="cf-turnstile"
+					data-sitekey={SITEKEY}
+					data-theme="auto"
+					data-action="turnstile-spin-v1"
+				></div>
+				<button type="submit">Send</button>
+				<p id="form-status" role="status" aria-live="polite"></p>
+			</form>
+		</main>
+		<Footer />
+
+		<script is:inline define:vars={{ submitUrl: SUBMIT_URL }}>
+			const form = document.querySelector('#contact-form');
+			const status = document.querySelector('#form-status');
+			const button = form.querySelector('button[type="submit"]');
+
+			form.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				const formData = new FormData(form);
+				const token = formData.get('cf-turnstile-response');
+
+				if (!token) {
+					status.textContent = 'Please complete the verification.';
+					return;
+				}
+
+				button.disabled = true;
+				status.textContent = 'Sending…';
+
+				try {
+					const response = await fetch(submitUrl, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							name: formData.get('name'),
+							email: formData.get('email'),
+							message: formData.get('message'),
+							token,
+						}),
+					});
+					const result = await response.json().catch(() => ({}));
+
+					if (!response.ok || result.success !== true) {
+						throw new Error(result.error || 'Message delivery is temporarily unavailable.');
+					}
+
+					form.reset();
+					window.turnstile?.reset();
+					status.textContent = 'Sent.';
+				} catch (error) {
+					status.textContent = error instanceof Error
+						? error.message
+						: 'Message delivery is temporarily unavailable.';
+					window.turnstile?.reset();
+				} finally {
+					button.disabled = false;
+				}
+			});
+		</script>
+	</body>
+</html>
+
+<style>
+	form,
+	label {
+		display: grid;
+		gap: 0.5rem;
+	}
+	form {
+		gap: 1rem;
+	}
+	input,
+	textarea {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 0.65rem;
+		border: 1px solid var(--border);
+		background: var(--background);
+		color: var(--text);
+		font: inherit;
+	}
+	textarea {
+		min-height: 10rem;
+		resize: vertical;
+	}
+	button {
+		width: fit-content;
+		padding: 0.55rem 1rem;
+		border: 0;
+		background: var(--link);
+		color: var(--background);
+		font: inherit;
+		cursor: pointer;
+	}
+	button:disabled {
+		opacity: 0.6;
+		cursor: wait;
+	}
+	#form-status {
+		min-height: 1.5em;
+		margin: 0;
+	}
+</style>

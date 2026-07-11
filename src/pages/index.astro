@@ -1,52 +1,23 @@
 ---
-import "@fontsource-variable/archivo";
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="hi" />
-    <meta name="theme-color" content="#111114" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>hi</title>
-  </head>
-  <body>
-    <main>
-      <h1>hi</h1>
-    </main>
-
-    <style is:global>
-      :root {
-        color-scheme: dark;
-        background: oklch(11% 0.006 285);
-        color: oklch(93% 0.006 90);
-        font-family: "Archivo Variable", sans-serif;
-      }
-
-      * { box-sizing: border-box; }
-
-      body {
-        min-width: 20rem;
-        min-height: 100svh;
-        margin: 0;
-      }
-
-      main {
-        min-height: 100svh;
-        padding: clamp(1.25rem, 4vw, 4rem);
-        display: flex;
-        align-items: flex-end;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(10rem, 36vw, 34rem);
-        font-weight: 650;
-        letter-spacing: -0.09em;
-        line-height: 0.66;
-      }
-    </style>
-  </body>
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Hello!</h1>
+			<p>
+			    Welcome to shen.zip
+			</p>
+		</main>
+		<Footer />
+	</body>
 </html>
