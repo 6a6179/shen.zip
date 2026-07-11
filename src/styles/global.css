@@ -74,11 +74,6 @@ table {
 	width: 100%;
 }
 
-img {
-	max-width: 100%;
-	height: auto;
-}
-
 code {
 	padding: 2px 5px;
 	background-color: var(--code-background);

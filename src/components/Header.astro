@@ -4,7 +4,9 @@ import HeaderLink from './HeaderLink.astro';
 ---
 
 <header>
-	<h2>{SITE_TITLE}</h2>
+	<a class="wordmark" href="/" aria-label={`${SITE_TITLE} home`}>
+		<span>shen</span><span class="dot" aria-hidden="true">.</span><span>zip</span>
+	</a>
 	<nav>
 		<HeaderLink href="/">Home</HeaderLink>
 		<HeaderLink href="/blog">Blog</HeaderLink>
@@ -17,7 +19,17 @@ import HeaderLink from './HeaderLink.astro';
 	header {
 		margin: 0 0 2em;
 	}
-	h2 {
+	.wordmark {
+		display: block;
+		width: fit-content;
 		margin: 0.5em 0;
+		color: var(--heading);
+		font-size: 1.5rem;
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		text-decoration: none;
+	}
+	.dot {
+		color: var(--link);
 	}
 </style>
