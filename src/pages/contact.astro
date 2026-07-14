@@ -101,7 +101,7 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 		</form>
 	</div>
 
-	<script is:inline>
+	<script is:inline data-astro-rerun>
 		(() => {
 			const form = document.querySelector('#contact-form');
 			if (!(form instanceof HTMLFormElement)) return;
@@ -133,11 +133,14 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 			let renderTimer;
 			let verificationTimer;
 			let requestTimer;
+			let requestController;
+			let disposed = false;
 			const clearVerificationTimers = () => {
 				window.clearTimeout(renderTimer);
 				window.clearTimeout(verificationTimer);
 			};
 			const markVerificationReady = () => {
+				if (disposed) return;
 				verified = true;
 				clearVerificationTimers();
 				verificationStatus.hidden = true;
@@ -148,6 +151,7 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 				button.disabled = false;
 			};
 			const showVerificationError = (message = 'Verification did not load.') => {
+				if (disposed) return;
 				verified = false;
 				clearVerificationTimers();
 				verificationStatus.hidden = false;
@@ -176,6 +180,7 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 			};
 
 			const renderTurnstile = () => {
+				if (disposed) return;
 				if (widget.dataset.state !== 'loading') return;
 				if (!window.turnstile) {
 					renderTimer = window.setTimeout(renderTurnstile, 50);
@@ -193,8 +198,9 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 						size,
 						callback: markVerificationReady,
 						'expired-callback': () => {
+							if (disposed) return;
 							resetVerificationState();
-							window.turnstile?.reset(widgetId);
+							if (widgetId !== undefined) window.turnstile?.reset(widgetId);
 						},
 						'timeout-callback': () => showVerificationError('Verification timed out.'),
 						'unsupported-callback': () => showVerificationError('This browser cannot run verification.'),
@@ -208,8 +214,8 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 			resetVerificationState();
 			armVerificationTimer();
 			renderTurnstile();
-			window.addEventListener('shen:theme-change', () => {
-				if (verified) return;
+			const handleThemeChange = () => {
+				if (disposed || verified) return;
 				clearVerificationTimers();
 				if (widgetId !== undefined) {
 					window.turnstile?.remove(widgetId);
@@ -219,7 +225,18 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 				resetVerificationState();
 				armVerificationTimer();
 				renderTurnstile();
-			});
+			};
+			window.addEventListener('shen:theme-change', handleThemeChange);
+			document.addEventListener('astro:before-swap', () => {
+				disposed = true;
+				const activeWidgetId = widgetId;
+				widgetId = undefined;
+				clearVerificationTimers();
+				window.clearTimeout(requestTimer);
+				window.removeEventListener('shen:theme-change', handleThemeChange);
+				if (activeWidgetId !== undefined) window.turnstile?.remove(activeWidgetId);
+				requestController?.abort();
+			}, { once: true });
 			retryButton.addEventListener('click', () => {
 				widget.replaceChildren();
 				resetVerificationState();
@@ -229,7 +246,7 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 
 			form.addEventListener('submit', async (event) => {
 				event.preventDefault();
-				if (button.disabled) return;
+				if (disposed || button.disabled) return;
 				const formData = new FormData(form);
 				const token = formData.get('cf-turnstile-response');
 
@@ -242,14 +259,14 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 				editableControls.forEach((control) => { control.disabled = true; });
 				form.setAttribute('aria-busy', 'true');
 				setStatus('Sending…');
-				const controller = new AbortController();
-				requestTimer = window.setTimeout(() => controller.abort(), 15_000);
+				requestController = new AbortController();
+				requestTimer = window.setTimeout(() => requestController?.abort(), 15_000);
 
 				try {
 					const response = await fetch(submitUrl, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						signal: controller.signal,
+						signal: requestController.signal,
 						body: JSON.stringify({
 							name: formData.get('name'),
 							email: formData.get('email'),
@@ -258,6 +275,7 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 						}),
 					});
 					const result = await response.json().catch(() => ({}));
+					if (disposed) return;
 
 					if (!response.ok || result.success !== true) {
 						throw new Error(result.error || 'Message delivery is temporarily unavailable.');
@@ -265,9 +283,10 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 
 					form.reset();
 					resetVerificationState();
-					window.turnstile?.reset(widgetId);
+					if (widgetId !== undefined) window.turnstile?.reset(widgetId);
 					setStatus('Sent. Thanks.', 'success');
 				} catch (error) {
+					if (disposed) return;
 					const message = error instanceof DOMException && error.name === 'AbortError'
 						? 'That took too long. Please try again.'
 						: error instanceof Error
@@ -275,12 +294,15 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 							: 'Message delivery is temporarily unavailable.';
 					setStatus(message, 'error');
 					resetVerificationState();
-					window.turnstile?.reset(widgetId);
+					if (widgetId !== undefined) window.turnstile?.reset(widgetId);
 				} finally {
 					window.clearTimeout(requestTimer);
-					editableControls.forEach((control) => { control.disabled = false; });
-					button.disabled = !verified;
-					form.removeAttribute('aria-busy');
+					requestController = undefined;
+					if (!disposed) {
+						editableControls.forEach((control) => { control.disabled = false; });
+						button.disabled = !verified;
+						form.removeAttribute('aria-busy');
+					}
 				}
 			});
 		})();

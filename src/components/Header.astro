@@ -3,7 +3,7 @@ import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 ---
 
-<header class="site-header">
+<header class="site-header" transition:persist="site-header">
 	<div class="site-shell header-inner">
 		<div class="header-optics" aria-hidden="true">
 			<div class="header-glass" data-liquid-glass></div>
@@ -36,6 +36,8 @@ import HeaderLink from './HeaderLink.astro';
 	(() => {
 		const header = document.querySelector('.site-header');
 		if (!(header instanceof HTMLElement)) return;
+		if (header.dataset.initialized === 'true') return;
+		header.dataset.initialized = 'true';
 
 		let framePending = false;
 		const updateGlass = () => {
@@ -93,7 +95,7 @@ import HeaderLink from './HeaderLink.astro';
 		const links = Array.from(nav.querySelectorAll('a')).filter(
 			(link) => link instanceof HTMLAnchorElement,
 		);
-		const activeLink = links.find((link) => link.getAttribute('aria-current') === 'page') ?? null;
+		let activeLink = links.find((link) => link.getAttribute('aria-current') === 'page') ?? null;
 		let hoveredLink = null;
 		let focusedLink = null;
 		let currentLink = activeLink;
@@ -132,6 +134,23 @@ import HeaderLink from './HeaderLink.astro';
 			const previewLink = focusedLink ?? hoveredLink;
 			placePill(previewLink ?? activeLink, previewLink ? 'preview' : 'active');
 		};
+		const syncActiveLink = (nextPath = window.location.pathname, instant = false) => {
+			const pathname = nextPath.replace(/\/$/, '') || '/';
+			activeLink = links.find((link) => {
+				const linkPath = new URL(link.href, window.location.href).pathname.replace(/\/$/, '') || '/';
+				return linkPath === pathname || (linkPath !== '/' && pathname.startsWith(`${linkPath}/`));
+			}) ?? null;
+
+			links.forEach((link) => {
+				const isActive = link === activeLink;
+				link.classList.toggle('active', isActive);
+				if (isActive) link.setAttribute('aria-current', 'page');
+				else link.removeAttribute('aria-current');
+			});
+			hoveredLink = null;
+			focusedLink = null;
+			placePill(activeLink, 'active', instant);
+		};
 
 		links.forEach((link) => {
 			link.addEventListener('pointerenter', () => {
@@ -166,7 +185,35 @@ import HeaderLink from './HeaderLink.astro';
 			});
 		};
 
-		placePill(activeLink, 'active', true);
+		syncActiveLink(window.location.pathname, true);
+		document.addEventListener('astro:before-preparation', (event) => {
+			const nextPath = event instanceof Event && 'to' in event && event.to instanceof URL
+				? event.to.pathname
+				: window.location.pathname;
+			if (nextPath === window.location.pathname) return;
+
+			syncActiveLink(nextPath);
+			if (
+				window.matchMedia('(prefers-reduced-motion: reduce)').matches
+				|| !('loader' in event)
+				|| typeof event.loader !== 'function'
+			) return;
+
+			const loadPage = event.loader;
+			event.loader = async () => {
+				await Promise.all([
+					loadPage(),
+					new Promise((resolve) => window.setTimeout(resolve, 240)),
+				]);
+			};
+		});
+		document.addEventListener('astro:before-swap', (event) => {
+			const nextPath = event instanceof Event && 'to' in event && event.to instanceof URL
+				? event.to.pathname
+				: window.location.pathname;
+			syncActiveLink(nextPath);
+		});
+		document.addEventListener('astro:page-load', () => syncActiveLink());
 		window.addEventListener('resize', schedulePillLayout, { passive: true });
 		if ('ResizeObserver' in window) {
 			const navResizeObserver = new ResizeObserver(schedulePillLayout);
@@ -417,7 +464,6 @@ import HeaderLink from './HeaderLink.astro';
 
 	.nav-pill[data-visible] {
 		opacity: 1;
-		view-transition-name: nav-active-pill;
 	}
 
 	.nav-pill[data-state='preview'] {
@@ -550,6 +596,62 @@ import HeaderLink from './HeaderLink.astro';
 
 	:global(html[data-theme='dark']) .theme-icon-sun {
 		display: block;
+	}
+
+	/* WebKit drops SVG URL filters from backdrop-filter, so iOS uses a
+	   neutral native blur with a thin Retina rim instead of fake color. */
+	:global(html[data-ios-webkit]) .header-inner {
+		--glass-fill: rgb(128 128 128 / 5%);
+		--glass-fallback-blur: 0.5rem;
+		--glass-contrast: 97%;
+		--glass-brightness: 103%;
+		--glass-inner-band: transparent;
+		--glass-shadow: rgb(0 0 0 / 10%);
+		--glass-shadow-scrolled: rgb(0 0 0 / 15%);
+	}
+
+	:global(html[data-ios-webkit]) .site-header[data-scrolled] .header-inner {
+		--glass-fill: rgb(128 128 128 / 8%);
+		--glass-fallback-blur: 0.625rem;
+		--glass-contrast: 95%;
+		--glass-brightness: 101%;
+	}
+
+	:global(html[data-ios-webkit]) .header-rim {
+		border: 0.5px solid rgb(255 255 255 / 14%);
+		box-shadow:
+			inset 0 1px 0 rgb(255 255 255 / 16%),
+			inset 0 -1px 0 rgb(0 0 0 / 16%);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(html[data-ios-webkit]:not([data-theme])) .header-inner {
+			--glass-fill: rgb(128 128 128 / 6%);
+			--glass-contrast: 97%;
+			--glass-brightness: 94%;
+			--glass-shadow: rgb(0 0 0 / 18%);
+			--glass-shadow-scrolled: rgb(0 0 0 / 24%);
+		}
+
+		:global(html[data-ios-webkit]:not([data-theme])) .site-header[data-scrolled] .header-inner {
+			--glass-fill: rgb(128 128 128 / 9%);
+			--glass-contrast: 95%;
+			--glass-brightness: 92%;
+		}
+	}
+
+	:global(html[data-ios-webkit][data-theme='dark']) .header-inner {
+		--glass-fill: rgb(128 128 128 / 6%);
+		--glass-contrast: 97%;
+		--glass-brightness: 94%;
+		--glass-shadow: rgb(0 0 0 / 18%);
+		--glass-shadow-scrolled: rgb(0 0 0 / 24%);
+	}
+
+	:global(html[data-ios-webkit][data-theme='dark']) .site-header[data-scrolled] .header-inner {
+		--glass-fill: rgb(128 128 128 / 9%);
+		--glass-contrast: 95%;
+		--glass-brightness: 92%;
 	}
 
 	@media (max-width: 590px) {

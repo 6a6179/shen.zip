@@ -2,6 +2,7 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE } from '../consts';
 
 interface Props {
@@ -15,38 +16,60 @@ interface Props {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 const {
-	title,
 	description,
 	type = 'website',
 	publishedDate,
 	updatedDate,
 } = Astro.props;
-const documentTitle = title === SITE_TITLE ? title : `${title} — ${SITE_TITLE}`;
 ---
 
 <!-- Global Metadata -->
 <meta charset="utf-8" />
-<title>{documentTitle}</title>
+<title>{SITE_TITLE}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="color-scheme" content="light dark" />
 <meta name="theme-color" content="#f7f6f2" data-theme-color />
 <script is:inline>
 	(() => {
-		const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-		let theme = systemTheme;
+		const userAgent = navigator.userAgent;
+		const isIOS = /iP(?:ad|hone|od)/.test(userAgent)
+			|| (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+		const supportsBackdrop = typeof CSS !== 'undefined' && (
+			CSS.supports('-webkit-backdrop-filter', 'blur(1px)')
+			|| CSS.supports('backdrop-filter', 'blur(1px)')
+		);
+		const useIOSGlass = isIOS && /AppleWebKit/i.test(userAgent) && supportsBackdrop;
+		const applyDocumentPreferences = () => {
+			const root = document.documentElement;
+			root.toggleAttribute('data-ios-webkit', useIOSGlass);
 
-		try {
-			const savedTheme = window.localStorage.getItem('shen.zip-theme');
-			if (savedTheme === 'light' || savedTheme === 'dark') {
-				theme = savedTheme;
-				document.documentElement.dataset.theme = savedTheme;
-			}
-		} catch {}
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+				? 'dark'
+				: 'light';
+			let theme = systemTheme;
 
-		const themeColor = document.querySelector('[data-theme-color]');
-		themeColor?.setAttribute('content', theme === 'dark' ? '#111211' : '#f7f6f2');
+			try {
+				const savedTheme = window.localStorage.getItem('shen.zip-theme');
+				if (savedTheme === 'light' || savedTheme === 'dark') {
+					theme = savedTheme;
+					root.dataset.theme = savedTheme;
+				}
+			} catch {}
+
+			document.querySelector('[data-theme-color]')?.setAttribute(
+				'content',
+				theme === 'dark' ? '#111211' : '#f7f6f2',
+			);
+		};
+
+		applyDocumentPreferences();
+		if (!window.__shenDocumentPreferences) {
+			window.__shenDocumentPreferences = true;
+			document.addEventListener('astro:after-swap', applyDocumentPreferences);
+		}
 	})();
 </script>
+<ClientRouter fallback="swap" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link
@@ -66,7 +89,7 @@ const documentTitle = title === SITE_TITLE ? title : `${title} — ${SITE_TITLE}
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content={type} />
 <meta property="og:url" content={Astro.url} />
-<meta property="og:title" content={documentTitle} />
+<meta property="og:title" content={SITE_TITLE} />
 <meta property="og:description" content={description} />
 <meta property="og:site_name" content={SITE_TITLE} />
 {type === 'article' && publishedDate && (
@@ -78,5 +101,5 @@ const documentTitle = title === SITE_TITLE ? title : `${title} — ${SITE_TITLE}
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content={documentTitle} />
+<meta name="twitter:title" content={SITE_TITLE} />
 <meta name="twitter:description" content={description} />
