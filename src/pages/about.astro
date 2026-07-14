@@ -1,21 +1,30 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
-<Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	updatedDate={new Date('July 10 2026')}
->
-	<p>
-	    I'm Jay
-	</p>
+<SiteLayout title="About me" description="About Jay.">
+	<section class="about">
+		<h1>About me</h1>
+		<p>Hi, I’m Jay. I like programming.</p>
+	</section>
+</SiteLayout>
 
-	<p>
-	    I like programming
-	</p>
+<style>
+	.about {
+		max-width: 38rem;
+	}
 
-	<p>
-        Astro is cool
-	</p>
-</Layout>
+	h1 {
+		margin: 0;
+		font-size: clamp(2.8rem, 8vw, 4.75rem);
+		font-weight: 610;
+		letter-spacing: -0.06em;
+		line-height: 0.98;
+	}
+
+	p {
+		margin: 2rem 0 0;
+		color: var(--muted-foreground);
+		font-size: clamp(1.05rem, 2vw, 1.2rem);
+	}
+</style>

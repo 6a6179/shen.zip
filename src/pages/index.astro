@@ -1,23 +1,226 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>Hello!</h1>
+<SiteLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+	<header class="home-intro">
+		<h1>Hello there.</h1>
+		<div class="home-copy">
 			<p>
-			    Welcome to shen.zip
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae
+				metus a justo varius aliquet. Donec at neque sed erat malesuada
+				fermentum, sit amet commodo nisl.
 			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+			<p>
+				Praesent vel sem non ligula posuere consequat. Suspendisse potenti.
+				Curabitur finibus, lacus quis consequat volutpat, sapien nibh tempor
+				erat, vitae interdum ipsum neque vel lorem.
+			</p>
+		</div>
+	</header>
+
+	<section class="home-visuals" aria-label="A few things">
+		<figure class="home-figure home-figure--wide">
+			<picture>
+				<source
+					type="image/avif"
+					srcset="/images/home/water-900.avif 900w, /images/home/water.avif 1800w"
+					sizes="(max-width: 640px) calc(100vw - 2rem), 56rem"
+				/>
+				<source
+					type="image/webp"
+					srcset="/images/home/water-900.webp 900w, /images/home/water.webp 1800w"
+					sizes="(max-width: 640px) calc(100vw - 2rem), 56rem"
+				/>
+				<img
+					src="/images/home/water.webp"
+					alt="Black-and-white close-up of rippling water."
+					width="1800"
+					height="900"
+					decoding="async"
+				/>
+			</picture>
+			<figcaption>
+				<span>Deep lake, 2025</span>
+				<a href="https://unsplash.com/photos/abstract-black-and-white-waves-with-light-reflections-YVQCoZbtUrA">Linus Belanger</a>
+			</figcaption>
+		</figure>
+
+		<div class="home-feature-row">
+			<div class="home-copy home-copy--side">
+				<p>
+					Aliquam erat volutpat. Morbi euismod augue vitae lectus viverra, quis
+					fringilla libero ultricies. Sed pretium enim id urna tincidunt, vitae
+					mollis tortor malesuada.
+				</p>
+				<p>
+					Maecenas consequat, risus a dignissim tincidunt, arcu odio feugiat
+					mauris, sit amet sodales velit justo vel nibh. Nulla facilisi. Vivamus
+					convallis sem nec augue faucibus, at luctus erat pulvinar.
+				</p>
+				<p>
+					Fusce aliquam quam non justo malesuada, nec feugiat lacus hendrerit.
+					Pellentesque habitant morbi tristique senectus et netus et malesuada
+					fames ac turpis egestas.
+				</p>
+			</div>
+
+			<figure class="home-figure">
+				<picture>
+					<source
+						type="image/avif"
+						srcset="/images/home/architecture-550.avif 550w, /images/home/architecture.avif 1100w"
+						sizes="(max-width: 640px) calc(100vw - 2rem), 24rem"
+					/>
+					<source
+						type="image/webp"
+						srcset="/images/home/architecture-550.webp 550w, /images/home/architecture.webp 1100w"
+						sizes="(max-width: 640px) calc(100vw - 2rem), 24rem"
+					/>
+					<img
+						src="/images/home/architecture.webp"
+						alt="Low-angle black-and-white view of a geometric modern building."
+						width="1100"
+						height="1467"
+						loading="lazy"
+						decoding="async"
+					/>
+				</picture>
+				<figcaption>
+					<span>Tokyo, 2025</span>
+					<a href="https://unsplash.com/photos/modern-architecture-with-geometric-lines-and-shadows-yRs7byyVBFc">Sebastian Schuster</a>
+				</figcaption>
+			</figure>
+		</div>
+
+		<figure class="home-figure home-figure--closing">
+			<picture>
+				<source
+					type="image/avif"
+					srcset="/images/home/street-tree-wide-900.avif 900w, /images/home/street-tree-wide.avif 1800w"
+					sizes="(max-width: 640px) calc(100vw - 2rem), 56rem"
+				/>
+				<source
+					type="image/webp"
+					srcset="/images/home/street-tree-wide-900.webp 900w, /images/home/street-tree-wide.webp 1800w"
+					sizes="(max-width: 640px) calc(100vw - 2rem), 56rem"
+				/>
+				<img
+					src="/images/home/street-tree-wide.webp"
+					alt="Black-and-white branches crossing a tiled city building."
+					width="1800"
+					height="1080"
+					loading="lazy"
+					decoding="async"
+				/>
+			</picture>
+			<figcaption>
+				<span>Street study, 2023</span>
+				<a href="https://unsplash.com/photos/a-black-and-white-photo-of-a-tree-in-front-of-a-building-qbTkG1tqmvo">Mak</a>
+			</figcaption>
+		</figure>
+	</section>
+</SiteLayout>
+
+<style>
+	.home-intro {
+		padding-top: clamp(0.5rem, 2vw, 1.5rem);
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(3.25rem, 10vw, 5.75rem);
+		font-weight: 610;
+		letter-spacing: -0.065em;
+		line-height: 0.95;
+	}
+
+	.home-copy {
+		margin-top: 1.5rem;
+		color: var(--muted-foreground);
+		font-size: clamp(1rem, 1.4vw, 1.08rem);
+		line-height: 1.75;
+	}
+
+	.home-copy p {
+		margin: 0 0 1.35rem;
+	}
+
+	.home-copy p:last-child {
+		margin-bottom: 0;
+	}
+
+	.home-visuals {
+		margin-top: clamp(3rem, 6vw, 4rem);
+	}
+
+	.home-figure {
+		margin: 0;
+	}
+
+	.home-figure picture,
+	.home-figure img {
+		display: block;
+		width: 100%;
+	}
+
+	.home-figure img {
+		height: auto;
+		background: var(--muted);
+	}
+
+	.home-figure figcaption {
+		display: flex;
+		gap: 1rem;
+		justify-content: space-between;
+		margin-top: 0.65rem;
+		color: var(--muted-foreground);
+		font-size: 0.78rem;
+		line-height: 1.45;
+	}
+
+	.home-figure figcaption a {
+		color: inherit;
+		text-decoration: none;
+		text-underline-offset: 0.18em;
+	}
+
+	.home-figure figcaption a:hover,
+	.home-figure figcaption a:focus-visible {
+		color: var(--foreground);
+		text-decoration: underline;
+	}
+
+	.home-feature-row {
+		display: grid;
+		grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+		gap: clamp(1.5rem, 4vw, 2.75rem);
+		align-items: start;
+		margin-top: clamp(3.5rem, 7vw, 4.5rem);
+	}
+
+	.home-copy--side {
+		margin-top: 0;
+	}
+
+	.home-figure--closing {
+		margin-top: clamp(3.5rem, 7vw, 4.5rem);
+	}
+
+	@media (max-width: 560px) {
+		h1 {
+			font-size: clamp(3.2rem, 17vw, 4.6rem);
+		}
+
+		.home-feature-row {
+			grid-template-columns: 1fr;
+			gap: 2.5rem;
+			margin-top: 3rem;
+		}
+
+		.home-figure--closing {
+			margin-top: 3.5rem;
+		}
+	}
+</style>

@@ -1,5 +1,6 @@
 {
-  "name": "hi",
+  "name": "shen-zip",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -10,15 +11,28 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-		"check:contact": "wrangler types workers/contact/worker-configuration.d.ts --config workers/contact/wrangler.jsonc && tsc -p workers/contact/tsconfig.json && wrangler deploy --config workers/contact/wrangler.jsonc --dry-run",
+    "check": "tsc --noEmit -p tsconfig.json && astro build",
+    "check:contact": "wrangler types workers/contact/worker-configuration.d.ts --config workers/contact/wrangler.jsonc && tsc -p workers/contact/tsconfig.json && wrangler deploy --config workers/contact/wrangler.jsonc --dry-run",
     "deploy:contact": "wrangler deploy --config workers/contact/wrangler.jsonc"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.2",
+    "@astrojs/react": "^6.0.1",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "astro": "^7.0.7",
-    "sharp": "^0.35.0"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "radix-ui": "^1.6.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "shadcn": "^4.13.0",
+    "sharp": "^0.35.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

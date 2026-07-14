@@ -1,0 +1,86 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+---
+
+<article class="post-row">
+	<a href={`/blog/${post.id}/`}>
+		<div class="post-copy">
+				<h2>{post.data.title}</h2>
+			<p>{post.data.description}</p>
+		</div>
+		<span class="post-date"><FormattedDate date={post.data.pubDate} /></span>
+	</a>
+</article>
+
+<style>
+	.post-row + .post-row {
+		margin-top: 2.5rem;
+	}
+
+	a {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 1.5rem;
+		align-items: start;
+		padding: 0;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.post-copy {
+		min-width: 0;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: clamp(1.2rem, 3vw, 1.5rem);
+		font-weight: 620;
+		letter-spacing: -0.035em;
+		line-height: 1.2;
+	}
+
+	p {
+		margin: 0.35rem 0 0;
+		color: var(--muted-foreground);
+		font-size: 0.95rem;
+		line-height: 1.45;
+	}
+
+	.post-date {
+		padding-top: 0.2rem;
+		color: var(--muted-foreground);
+		font-size: 0.8rem;
+		white-space: nowrap;
+	}
+
+	a:hover h2,
+	a:focus-visible h2 {
+		color: var(--accent-strong);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.14em;
+	}
+
+	@media (max-width: 540px) {
+		a {
+			grid-template-columns: 1fr;
+			gap: 0.65rem;
+		}
+
+		.post-date {
+			grid-row: 1;
+			padding-top: 0;
+		}
+
+		.post-copy {
+			grid-row: 2;
+		}
+	}
+</style>

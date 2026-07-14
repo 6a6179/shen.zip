@@ -77,12 +77,41 @@ function json(body: unknown, status: number, origin: string | null, env: Env): R
 	return Response.json(body, { status, headers: responseHeaders(origin, env) });
 }
 
-function cleanSingleLine(value: unknown, maxLength: number): string {
-	return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ').slice(0, maxLength) : '';
+async function readBody(request: Request): Promise<string | null> {
+	const declaredLength = Number(request.headers.get('Content-Length'));
+	if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_LENGTH) {
+		return null;
+	}
+
+	if (!request.body) return '';
+
+	const reader = request.body.getReader();
+	const decoder = new TextDecoder();
+	let totalLength = 0;
+	let body = '';
+
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+
+		totalLength += value.byteLength;
+		if (totalLength > MAX_BODY_LENGTH) {
+			await reader.cancel();
+			return null;
+		}
+
+		body += decoder.decode(value, { stream: true });
+	}
+
+	return body + decoder.decode();
+}
+
+function cleanSingleLine(value: unknown): string {
+	return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';
 }
 
 function cleanMessage(value: unknown): string {
-	return typeof value === 'string' ? value.trim().replace(/\r\n?/g, '\n').slice(0, 5_000) : '';
+	return typeof value === 'string' ? value.trim().replace(/\r\n?/g, '\n') : '';
 }
 
 function isEmail(value: string): boolean {
@@ -95,12 +124,21 @@ function parseContact(raw: unknown): Contact {
 	}
 
 	const data = raw as Record<string, unknown>;
-	const name = cleanSingleLine(data.name, 100);
-	const email = cleanSingleLine(data.email, 254).toLowerCase();
+	const name = cleanSingleLine(data.name);
+	const email = cleanSingleLine(data.email).toLowerCase();
 	const message = cleanMessage(data.message);
 	const token = typeof data.token === 'string' ? data.token.trim() : '';
 
-	if (!name || !isEmail(email) || !message || !token || token.length > 2_048) {
+	if (
+		!name ||
+		name.length > 100 ||
+		!isEmail(email) ||
+		email.length > 254 ||
+		!message ||
+		message.length > 5_000 ||
+		!token ||
+		token.length > 2_048
+	) {
 		throw new ContactError('invalid-form', 400, 'Check the form and try again.');
 	}
 
@@ -288,14 +326,20 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
 		return json({ success: false, error: 'Check the form and try again.' }, 415, origin, env);
 	}
 
-	const body = await request.text();
-	if (body.length > MAX_BODY_LENGTH) {
+	const body = await readBody(request);
+	if (body === null) {
 		return json({ success: false, error: 'That message is too long.' }, 413, origin, env);
+	}
+	let parsedBody: unknown;
+	try {
+		parsedBody = JSON.parse(body);
+	} catch {
+		return json({ success: false, error: 'Check the form and try again.' }, 400, origin, env);
 	}
 
 	const startedAt = Date.now();
 	try {
-		const contact = parseContact(JSON.parse(body));
+		const contact = parseContact(parsedBody);
 		await verifyTurnstile(contact, request, env);
 		await sendWithFastmail(contact, env);
 		console.log(JSON.stringify({ event: 'contact_submit', outcome: 'ok', duration_ms: Date.now() - startedAt }));

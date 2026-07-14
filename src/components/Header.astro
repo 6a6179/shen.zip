@@ -3,33 +3,331 @@ import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 ---
 
-<header>
-	<a class="wordmark" href="/" aria-label={`${SITE_TITLE} home`}>
-		<span>shen</span><span class="dot" aria-hidden="true">.</span><span>zip</span>
-	</a>
-	<nav>
-		<HeaderLink href="/">Home</HeaderLink>
-		<HeaderLink href="/blog">Blog</HeaderLink>
-		<HeaderLink href="/about">About</HeaderLink>
-		<HeaderLink href="/contact">Contact</HeaderLink>
-		<HeaderLink href="https://github.com/6a6179" target="_blank">GitHub</HeaderLink>
-	</nav>
+<header class="site-header">
+	<div class="site-shell header-inner">
+		<div class="header-optics" aria-hidden="true">
+			<div class="header-glass" data-liquid-glass></div>
+		</div>
+		<div class="header-rim" aria-hidden="true"></div>
+		<div class="header-content">
+			<a class="wordmark" href="/" aria-label={`${SITE_TITLE} home`}>shen.zip</a>
+			<nav aria-label="Primary navigation">
+				<HeaderLink href="/blog">Notes</HeaderLink>
+				<HeaderLink href="/about">About me</HeaderLink>
+				<HeaderLink href="/contact">Contact</HeaderLink>
+			</nav>
+		</div>
+	</div>
 </header>
-<style>
-	header {
-		margin: 0 0 2em;
+
+<script is:inline>
+	(() => {
+		const header = document.querySelector('.site-header');
+		if (!(header instanceof HTMLElement)) return;
+
+		let framePending = false;
+		const updateGlass = () => {
+			framePending = false;
+			header.toggleAttribute('data-scrolled', window.scrollY > header.offsetHeight);
+		};
+		const scheduleUpdate = () => {
+			if (framePending) return;
+			framePending = true;
+			window.requestAnimationFrame(updateGlass);
+		};
+
+		updateGlass();
+		window.addEventListener('scroll', scheduleUpdate, { passive: true });
+	})();
+</script>
+
+<script>
+	import { createLiquidGlassFilter } from '../utils/liquidGlass';
+
+	const glass = document.querySelector('[data-liquid-glass]');
+	const isChromium = /(?:Chrome|Chromium|Edg)\/\d/.test(navigator.userAgent)
+		&& !/(?:CriOS|EdgiOS)\//.test(navigator.userAgent);
+	const supportsSvgBackdrop = typeof CSS !== 'undefined'
+		&& CSS.supports('backdrop-filter', 'url("#test")');
+
+	if (glass instanceof HTMLElement && isChromium && supportsSvgBackdrop) {
+		let previousSize = '';
+		let resizeFrame = 0;
+		const updateRefraction = () => {
+			resizeFrame = 0;
+			const { width, height } = glass.getBoundingClientRect();
+			const roundedWidth = Math.round(width);
+			const roundedHeight = Math.round(height);
+			const size = `${roundedWidth}x${roundedHeight}`;
+			if (size === previousSize || roundedWidth < 1 || roundedHeight < 1) return;
+
+			previousSize = size;
+			glass.style.setProperty(
+				'--glass-refraction',
+				createLiquidGlassFilter({ width: roundedWidth, height: roundedHeight }),
+			);
+			glass.toggleAttribute('data-refraction-ready', true);
+		};
+		const scheduleRefraction = () => {
+			if (resizeFrame) return;
+			resizeFrame = window.requestAnimationFrame(updateRefraction);
+		};
+
+		updateRefraction();
+		new ResizeObserver(scheduleRefraction).observe(glass);
 	}
+</script>
+
+<style>
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		padding-top: 0.75rem;
+	}
+
+	.header-inner {
+		--glass-solid: rgb(232 232 232);
+		--glass-fill: rgb(128 128 128 / 11%);
+		--glass-blur: 2px;
+		--glass-fallback-blur: 0.85rem;
+		--glass-contrast: 92%;
+		--glass-brightness: 108%;
+		--glass-inner-band: rgb(255 255 255 / 8%);
+		--glass-shadow: rgb(0 0 0 / 12%);
+		--glass-shadow-scrolled: rgb(0 0 0 / 17%);
+
+		position: relative;
+		isolation: isolate;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		background: transparent;
+		background-clip: padding-box;
+		box-shadow:
+			0 0.65rem 1.75rem var(--glass-shadow),
+			0 0.1rem 0.35rem rgb(0 0 0 / 7%);
+		transition: border-color 180ms ease, box-shadow 180ms ease;
+	}
+
+	.header-content {
+		position: relative;
+		z-index: 2;
+		isolation: isolate;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+		align-items: center;
+		justify-content: space-between;
+		min-height: 3.6rem;
+		padding-inline: 1rem;
+	}
+
+	.site-header[data-scrolled] .header-inner {
+		--glass-fill: rgb(128 128 128 / 18%);
+		--glass-blur: 2.5px;
+		--glass-fallback-blur: 0.95rem;
+		--glass-contrast: 84%;
+		--glass-brightness: 110%;
+
+		box-shadow:
+			0 0.75rem 2rem var(--glass-shadow-scrolled),
+			0 0.1rem 0.35rem rgb(0 0 0 / 9%);
+	}
+
+	.header-optics,
+	.header-rim {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		border-radius: inherit;
+		pointer-events: none;
+	}
+
+	.header-optics {
+		inset: -1px;
+		overflow: hidden;
+	}
+
+	.header-glass {
+		position: absolute;
+		inset: -1px;
+		border-radius: inherit;
+		background: var(--glass-solid);
+		transition: background-color 180ms ease;
+	}
+
+	.header-rim {
+		z-index: 1;
+		box-shadow: inset 0 0 0.8rem var(--glass-inner-band);
+	}
+
+	@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+		.header-glass {
+			background: var(--glass-fill);
+			-webkit-backdrop-filter:
+				blur(var(--glass-fallback-blur)) grayscale(100%)
+				contrast(var(--glass-contrast)) brightness(var(--glass-brightness));
+			backdrop-filter:
+				blur(var(--glass-fallback-blur)) grayscale(100%)
+				contrast(var(--glass-contrast)) brightness(var(--glass-brightness));
+		}
+
+		.header-glass[data-refraction-ready] {
+			-webkit-backdrop-filter:
+				blur(0.5px) var(--glass-refraction) blur(var(--glass-blur))
+				grayscale(100%) contrast(var(--glass-contrast))
+				brightness(var(--glass-brightness));
+			backdrop-filter:
+				blur(0.5px) var(--glass-refraction) blur(var(--glass-blur))
+				grayscale(100%) contrast(var(--glass-contrast))
+				brightness(var(--glass-brightness));
+		}
+	}
+
 	.wordmark {
-		display: block;
-		width: fit-content;
-		margin: 0.5em 0;
-		color: var(--heading);
-		font-size: 1.5rem;
-		font-weight: 700;
-		letter-spacing: -0.04em;
+		--nav-highlight: rgb(128 128 128 / 13%);
+		--nav-rim: rgb(255 255 255 / 12%);
+
+		position: relative;
+		z-index: 2;
+		isolation: isolate;
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		min-height: 44px;
+		color: var(--foreground);
+		font-size: 1rem;
+		font-weight: 680;
+		letter-spacing: -0.035em;
 		text-decoration: none;
 	}
-	.dot {
-		color: var(--link);
+
+	.wordmark::before {
+		position: absolute;
+		inset: 0.2rem -0.55rem;
+		z-index: -1;
+		border-radius: 999px;
+		background: transparent;
+		content: '';
+		pointer-events: none;
+		transform: scale(0.96);
+		transition:
+			background-color 150ms ease,
+			box-shadow 150ms ease,
+			transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+
+	.wordmark:hover,
+	.wordmark:focus-visible {
+		color: var(--foreground);
+	}
+
+	.wordmark:hover::before,
+	.wordmark:focus-visible::before {
+		background: var(--nav-highlight);
+		box-shadow: inset 0 0 0 0.5px var(--nav-rim);
+		transform: scale(1);
+	}
+
+	.wordmark:active::before {
+		transform: scale(0.94);
+	}
+
+	nav {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		flex: 1 1 auto;
+		flex-wrap: wrap;
+		gap: 1.4rem;
+		align-items: center;
+		justify-content: flex-end;
+		min-width: min(100%, 11rem);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.header-inner {
+			--glass-solid: rgb(28 28 28);
+			--glass-fill: rgb(128 128 128 / 13%);
+			--glass-blur: 2px;
+			--glass-fallback-blur: 0.85rem;
+			--glass-contrast: 90%;
+			--glass-brightness: 78%;
+			--glass-inner-band: rgb(255 255 255 / 5%);
+			--glass-shadow: rgb(0 0 0 / 30%);
+			--glass-shadow-scrolled: rgb(0 0 0 / 38%);
+		}
+
+		.site-header[data-scrolled] .header-inner {
+			--glass-fill: rgb(128 128 128 / 19%);
+			--glass-blur: 2.5px;
+			--glass-fallback-blur: 0.95rem;
+			--glass-contrast: 82%;
+			--glass-brightness: 74%;
+		}
+	}
+
+	@media (max-width: 590px) {
+		.site-header {
+			padding-top: 0.5rem;
+		}
+
+		.header-content {
+			gap: 0.75rem;
+			min-height: 3.35rem;
+			padding-inline: 0.75rem;
+		}
+
+		.wordmark::before {
+			inset-inline: -0.45rem;
+		}
+
+		nav {
+			gap: 1rem;
+		}
+	}
+
+	@media (prefers-reduced-transparency: reduce) {
+		.header-inner {
+			border-color: var(--border);
+		}
+
+		.header-glass,
+		.header-glass[data-refraction-ready] {
+			background: var(--glass-solid);
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
+		}
+
+		.header-rim {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.wordmark::before,
+		.wordmark:hover::before,
+		.wordmark:focus-visible::before,
+		.wordmark:active::before {
+			transform: none;
+		}
+	}
+
+	@media (forced-colors: active) {
+		.header-inner {
+			border-color: CanvasText;
+			box-shadow: none;
+		}
+
+		.header-glass,
+		.header-glass[data-refraction-ready] {
+			background: Canvas;
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
+		}
+
+		.header-rim {
+			display: none;
+		}
 	}
 </style>

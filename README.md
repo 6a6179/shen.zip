@@ -1,12 +1,13 @@
 # shen.zip
 
-A minimal Astro blog deployed on Cloudflare Pages.
+A personal bio site and notes archive built with Astro, Tailwind CSS, and shadcn/ui components. It deploys to Cloudflare Pages.
 
 ## Commands
 
 ```sh
 npm install
 npm run dev
+npm run check
 npm run build
 ```
 
