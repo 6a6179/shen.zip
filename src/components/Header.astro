@@ -11,7 +11,8 @@ import HeaderLink from './HeaderLink.astro';
 		<div class="header-rim" aria-hidden="true"></div>
 		<div class="header-content">
 			<a class="wordmark" href="/" aria-label={`${SITE_TITLE} home`}>shen.zip</a>
-			<nav aria-label="Primary navigation">
+			<nav aria-label="Primary navigation" data-primary-nav>
+				<span class="nav-pill" data-nav-pill aria-hidden="true"></span>
 				<HeaderLink href="/blog">Notes</HeaderLink>
 				<HeaderLink href="/about">About me</HeaderLink>
 				<HeaderLink href="/contact">Contact</HeaderLink>
@@ -38,6 +39,95 @@ import HeaderLink from './HeaderLink.astro';
 
 		updateGlass();
 		window.addEventListener('scroll', scheduleUpdate, { passive: true });
+
+		const nav = header.querySelector('[data-primary-nav]');
+		const pill = nav?.querySelector('[data-nav-pill]');
+		if (!(nav instanceof HTMLElement) || !(pill instanceof HTMLElement)) return;
+
+		const links = Array.from(nav.querySelectorAll('a')).filter(
+			(link) => link instanceof HTMLAnchorElement,
+		);
+		const activeLink = links.find((link) => link.getAttribute('aria-current') === 'page') ?? null;
+		let hoveredLink = null;
+		let focusedLink = null;
+		let currentLink = activeLink;
+		let currentState = 'active';
+		let resizeFrame = 0;
+
+		const placePill = (link, state = 'active', instant = false) => {
+			currentLink = link;
+			currentState = state;
+
+			if (!(link instanceof HTMLAnchorElement)) {
+				pill.removeAttribute('data-visible');
+				return;
+			}
+
+			if (instant) pill.setAttribute('data-instant', '');
+			const navRect = nav.getBoundingClientRect();
+			const linkRect = link.getBoundingClientRect();
+			const rootSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+			const verticalInset = rootSize * 0.2;
+
+			pill.style.setProperty('--nav-pill-x', `${linkRect.left - navRect.left}px`);
+			pill.style.setProperty('--nav-pill-y', `${linkRect.top - navRect.top + verticalInset}px`);
+			pill.style.setProperty('--nav-pill-width', `${linkRect.width}px`);
+			pill.style.setProperty('--nav-pill-height', `${Math.max(0, linkRect.height - verticalInset * 2)}px`);
+			pill.dataset.state = state;
+			pill.setAttribute('data-visible', '');
+
+			if (instant) {
+				void pill.offsetWidth;
+				pill.removeAttribute('data-instant');
+			}
+		};
+
+		const settlePill = () => {
+			const previewLink = focusedLink ?? hoveredLink;
+			placePill(previewLink ?? activeLink, previewLink ? 'preview' : 'active');
+		};
+
+		links.forEach((link) => {
+			link.addEventListener('pointerenter', () => {
+				hoveredLink = link;
+				settlePill();
+			});
+			link.addEventListener('pointerleave', () => {
+				if (hoveredLink === link) hoveredLink = null;
+				settlePill();
+			});
+			link.addEventListener('focusin', () => {
+				focusedLink = link;
+				settlePill();
+			});
+			link.addEventListener('focusout', () => {
+				window.requestAnimationFrame(() => {
+					focusedLink = links.find((candidate) => candidate === document.activeElement) ?? null;
+					settlePill();
+				});
+			});
+			link.addEventListener('pointerdown', (event) => {
+				if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+				placePill(link, 'active');
+			});
+		});
+
+		const schedulePillLayout = () => {
+			if (resizeFrame) return;
+			resizeFrame = window.requestAnimationFrame(() => {
+				resizeFrame = 0;
+				placePill(currentLink, currentState, true);
+			});
+		};
+
+		placePill(activeLink, 'active', true);
+		window.addEventListener('resize', schedulePillLayout, { passive: true });
+		if ('ResizeObserver' in window) {
+			const navResizeObserver = new ResizeObserver(schedulePillLayout);
+			navResizeObserver.observe(nav);
+			links.forEach((link) => navResizeObserver.observe(link));
+		}
+		document.fonts?.ready.then(schedulePillLayout);
 	})();
 </script>
 
@@ -236,13 +326,53 @@ import HeaderLink from './HeaderLink.astro';
 	nav {
 		position: relative;
 		z-index: 2;
+		isolation: isolate;
 		display: flex;
 		flex: 1 1 auto;
 		flex-wrap: wrap;
-		gap: 1.4rem;
+		gap: 0.3rem;
 		align-items: center;
 		justify-content: flex-end;
 		min-width: min(100%, 11rem);
+	}
+
+	.nav-pill {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 0;
+		width: var(--nav-pill-width, 0);
+		height: var(--nav-pill-height, 0);
+		border-radius: 999px;
+		background: rgb(128 128 128 / 12%);
+		box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 10%);
+		opacity: 0;
+		pointer-events: none;
+		transform: translate3d(var(--nav-pill-x, 0), var(--nav-pill-y, 0), 0);
+		transition:
+			transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+			width 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+			height 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+			background-color 150ms ease,
+			box-shadow 150ms ease,
+			opacity 120ms ease;
+		will-change: transform, width, height;
+	}
+
+	.nav-pill[data-visible] {
+		opacity: 1;
+		view-transition-name: nav-active-pill;
+	}
+
+	.nav-pill[data-state='preview'] {
+		background: rgb(128 128 128 / 19%);
+		box-shadow:
+			inset 0 0 0 0.5px rgb(255 255 255 / 14%),
+			0 0.1rem 0.35rem rgb(0 0 0 / 7%);
+	}
+
+	.nav-pill[data-instant] {
+		transition: none;
 	}
 
 	@media (prefers-color-scheme: dark) {
@@ -283,7 +413,7 @@ import HeaderLink from './HeaderLink.astro';
 		}
 
 		nav {
-			gap: 1rem;
+			gap: 0.1rem;
 		}
 	}
 
@@ -302,9 +432,21 @@ import HeaderLink from './HeaderLink.astro';
 		.header-rim {
 			display: none;
 		}
+
+		.nav-pill {
+			background: rgb(128 128 128 / 22%);
+		}
+
+		.nav-pill[data-state='preview'] {
+			background: rgb(128 128 128 / 30%);
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+		.nav-pill {
+			transition: none;
+		}
+
 		.wordmark::before,
 		.wordmark:hover::before,
 		.wordmark:focus-visible::before,
@@ -327,6 +469,10 @@ import HeaderLink from './HeaderLink.astro';
 		}
 
 		.header-rim {
+			display: none;
+		}
+
+		.nav-pill {
 			display: none;
 		}
 	}

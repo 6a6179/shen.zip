@@ -1,6 +1,33 @@
 @import "tailwindcss";
 @import "shadcn/tailwind.css";
 
+@view-transition {
+	navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+
+::view-transition-group(nav-active-pill) {
+	animation-duration: 220ms;
+	animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-old(nav-active-pill) {
+	animation: none;
+	mix-blend-mode: normal;
+	opacity: 0;
+}
+
+::view-transition-new(nav-active-pill) {
+	animation: none;
+	mix-blend-mode: normal;
+	opacity: 1;
+}
+
 :root {
 	color-scheme: light dark;
 	--background: #f7f6f2;
@@ -265,6 +292,10 @@ textarea:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+	::view-transition-group(nav-active-pill) {
+		animation-duration: 0.01ms;
+	}
+
 	*,
 	*::before,
 	*::after {
