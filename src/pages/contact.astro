@@ -78,7 +78,6 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 					class="cf-turnstile"
 					data-state="loading"
 					data-sitekey={SITEKEY}
-					data-theme="auto"
 					data-size="flexible"
 					data-action="turnstile-spin-v1"
 				></div>
@@ -185,9 +184,11 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 
 				try {
 					const size = widget.getBoundingClientRect().width < 300 ? 'compact' : 'flexible';
+					const theme = document.documentElement.dataset.theme
+						|| (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 					widgetId = window.turnstile.render(widget, {
 						sitekey: widget.dataset.sitekey,
-						theme: 'auto',
+						theme,
 						action: widget.dataset.action,
 						size,
 						callback: markVerificationReady,
@@ -207,6 +208,18 @@ const SUBMIT_URL = 'https://shen-zip-contact.jsh-e38.workers.dev';
 			resetVerificationState();
 			armVerificationTimer();
 			renderTurnstile();
+			window.addEventListener('shen:theme-change', () => {
+				if (verified) return;
+				clearVerificationTimers();
+				if (widgetId !== undefined) {
+					window.turnstile?.remove(widgetId);
+					widgetId = undefined;
+				}
+				widget.replaceChildren();
+				resetVerificationState();
+				armVerificationTimer();
+				renderTurnstile();
+			});
 			retryButton.addEventListener('click', () => {
 				widget.replaceChildren();
 				resetVerificationState();

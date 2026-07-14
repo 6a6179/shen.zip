@@ -29,8 +29,24 @@ const documentTitle = title === SITE_TITLE ? title : `${title} — ${SITE_TITLE}
 <title>{documentTitle}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="color-scheme" content="light dark" />
-<meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#111211" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f7f6f2" data-theme-color />
+<script is:inline>
+	(() => {
+		const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		let theme = systemTheme;
+
+		try {
+			const savedTheme = window.localStorage.getItem('shen.zip-theme');
+			if (savedTheme === 'light' || savedTheme === 'dark') {
+				theme = savedTheme;
+				document.documentElement.dataset.theme = savedTheme;
+			}
+		} catch {}
+
+		const themeColor = document.querySelector('[data-theme-color]');
+		themeColor?.setAttribute('content', theme === 'dark' ? '#111211' : '#f7f6f2');
+	})();
+</script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link

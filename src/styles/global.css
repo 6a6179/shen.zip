@@ -29,7 +29,7 @@
 }
 
 :root {
-	color-scheme: light dark;
+	color-scheme: light;
 	--background: #f7f6f2;
 	--foreground: #191918;
 	--card: #fbfaf7;
@@ -53,7 +53,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root {
+	:root:not([data-theme]) {
+		color-scheme: dark;
 		--background: #111211;
 		--foreground: #efeee9;
 		--card: #171817;
@@ -73,6 +74,28 @@
 		--ring: #8ca5ff;
 		--code-background: #1c1d1b;
 	}
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--background: #111211;
+	--foreground: #efeee9;
+	--card: #171817;
+	--card-foreground: #efeee9;
+	--primary: #8ca5ff;
+	--primary-foreground: #101110;
+	--secondary: #242523;
+	--secondary-foreground: #efeee9;
+	--muted: #242523;
+	--muted-foreground: #aaa79f;
+	--accent: #252624;
+	--accent-foreground: #efeee9;
+	--accent-strong: #8ca5ff;
+	--destructive: #f07972;
+	--border: #343531;
+	--input: #73756f;
+	--ring: #8ca5ff;
+	--code-background: #1c1d1b;
 }
 
 @theme inline {

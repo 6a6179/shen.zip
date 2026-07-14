@@ -11,12 +11,23 @@ import HeaderLink from './HeaderLink.astro';
 		<div class="header-rim" aria-hidden="true"></div>
 		<div class="header-content">
 			<a class="wordmark" href="/" aria-label={`${SITE_TITLE} home`}>shen.zip</a>
-			<nav aria-label="Primary navigation" data-primary-nav>
-				<span class="nav-pill" data-nav-pill aria-hidden="true"></span>
-				<HeaderLink href="/blog">Notes</HeaderLink>
-				<HeaderLink href="/about">About me</HeaderLink>
-				<HeaderLink href="/contact">Contact</HeaderLink>
-			</nav>
+			<div class="header-actions">
+				<nav aria-label="Primary navigation" data-primary-nav>
+					<span class="nav-pill" data-nav-pill aria-hidden="true"></span>
+					<HeaderLink href="/blog">Notes</HeaderLink>
+					<HeaderLink href="/about">About me</HeaderLink>
+					<HeaderLink href="/contact">Contact</HeaderLink>
+				</nav>
+				<button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">
+					<svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.5 8.5 0 1 0 20.2 15.4Z"></path>
+					</svg>
+					<svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="12" cy="12" r="3.75"></circle>
+						<path d="M12 2.25v2.1M12 19.65v2.1M2.25 12h2.1M19.65 12h2.1M5.1 5.1l1.5 1.5M17.4 17.4l1.5 1.5M18.9 5.1l-1.5 1.5M6.6 17.4l-1.5 1.5"></path>
+					</svg>
+				</button>
+			</div>
 		</div>
 	</div>
 </header>
@@ -39,6 +50,41 @@ import HeaderLink from './HeaderLink.astro';
 
 		updateGlass();
 		window.addEventListener('scroll', scheduleUpdate, { passive: true });
+
+		const themeToggle = header.querySelector('[data-theme-toggle]');
+		if (themeToggle instanceof HTMLButtonElement) {
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+			const currentTheme = () => document.documentElement.dataset.theme
+				|| (systemTheme.matches ? 'dark' : 'light');
+			const syncThemeToggle = () => {
+				const theme = currentTheme();
+				const label = `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`;
+				themeToggle.setAttribute('aria-label', label);
+				themeToggle.title = label;
+				document.querySelector('[data-theme-color]')?.setAttribute(
+					'content',
+					theme === 'dark' ? '#111211' : '#f7f6f2',
+				);
+			};
+
+			themeToggle.addEventListener('click', () => {
+				const theme = currentTheme() === 'dark' ? 'light' : 'dark';
+				document.documentElement.dataset.theme = theme;
+				try {
+					window.localStorage.setItem('shen.zip-theme', theme);
+				} catch {}
+				syncThemeToggle();
+				window.dispatchEvent(new CustomEvent('shen:theme-change', { detail: { theme } }));
+			});
+			systemTheme.addEventListener('change', () => {
+				if (document.documentElement.dataset.theme) return;
+				syncThemeToggle();
+				window.dispatchEvent(new CustomEvent('shen:theme-change', {
+					detail: { theme: currentTheme() },
+				}));
+			});
+			syncThemeToggle();
+		}
 
 		const nav = header.querySelector('[data-primary-nav]');
 		const pill = nav?.querySelector('[data-nav-pill]');
@@ -178,7 +224,7 @@ import HeaderLink from './HeaderLink.astro';
 
 	.header-inner {
 		--glass-solid: rgb(232 232 232);
-		--glass-fill: rgb(128 128 128 / 11%);
+		--glass-fill: rgb(128 128 128 / 8%);
 		--glass-blur: 2px;
 		--glass-fallback-blur: 0.85rem;
 		--glass-contrast: 92%;
@@ -213,7 +259,7 @@ import HeaderLink from './HeaderLink.astro';
 	}
 
 	.site-header[data-scrolled] .header-inner {
-		--glass-fill: rgb(128 128 128 / 18%);
+		--glass-fill: rgb(128 128 128 / 15%);
 		--glass-blur: 2.5px;
 		--glass-fallback-blur: 0.95rem;
 		--glass-contrast: 84%;
@@ -323,12 +369,22 @@ import HeaderLink from './HeaderLink.astro';
 		transform: scale(0.94);
 	}
 
-	nav {
+	.header-actions {
 		position: relative;
 		z-index: 2;
-		isolation: isolate;
 		display: flex;
 		flex: 1 1 auto;
+		gap: 0.45rem;
+		align-items: center;
+		justify-content: flex-end;
+		min-width: min(100%, 14rem);
+	}
+
+	nav {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		flex: 0 1 auto;
 		flex-wrap: wrap;
 		gap: 0.3rem;
 		align-items: center;
@@ -375,10 +431,73 @@ import HeaderLink from './HeaderLink.astro';
 		transition: none;
 	}
 
+	.theme-toggle {
+		position: relative;
+		isolation: isolate;
+		display: inline-grid;
+		flex: 0 0 44px;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		padding: 0;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		box-shadow: none;
+		color: var(--muted-foreground);
+		cursor: pointer;
+		transition:
+			color 150ms ease,
+			transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+
+	.theme-toggle::before {
+		position: absolute;
+		inset: 0.2rem;
+		z-index: -1;
+		border-radius: inherit;
+		background: transparent;
+		box-shadow: none;
+		content: '';
+		pointer-events: none;
+		transition:
+			background-color 150ms ease,
+			box-shadow 150ms ease;
+	}
+
+	.theme-toggle:hover,
+	.theme-toggle:focus-visible {
+		color: var(--foreground);
+	}
+
+	.theme-toggle:hover::before,
+	.theme-toggle:focus-visible::before {
+		background: rgb(128 128 128 / 13%);
+		box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 12%);
+	}
+
+	.theme-toggle:active {
+		transform: scale(0.94);
+	}
+
+	.theme-icon {
+		width: 1.05rem;
+		height: 1.05rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 1.7;
+	}
+
+	.theme-icon-sun {
+		display: none;
+	}
+
 	@media (prefers-color-scheme: dark) {
-		.header-inner {
+		:global(html:not([data-theme])) .header-inner {
 			--glass-solid: rgb(28 28 28);
-			--glass-fill: rgb(128 128 128 / 13%);
+			--glass-fill: rgb(128 128 128 / 10%);
 			--glass-blur: 2px;
 			--glass-fallback-blur: 0.85rem;
 			--glass-contrast: 90%;
@@ -388,13 +507,49 @@ import HeaderLink from './HeaderLink.astro';
 			--glass-shadow-scrolled: rgb(0 0 0 / 38%);
 		}
 
-		.site-header[data-scrolled] .header-inner {
-			--glass-fill: rgb(128 128 128 / 19%);
+		:global(html:not([data-theme])) .site-header[data-scrolled] .header-inner {
+			--glass-fill: rgb(128 128 128 / 16%);
 			--glass-blur: 2.5px;
 			--glass-fallback-blur: 0.95rem;
 			--glass-contrast: 82%;
 			--glass-brightness: 74%;
 		}
+
+		:global(html:not([data-theme])) .theme-icon-moon {
+			display: none;
+		}
+
+		:global(html:not([data-theme])) .theme-icon-sun {
+			display: block;
+		}
+	}
+
+	:global(html[data-theme='dark']) .header-inner {
+		--glass-solid: rgb(28 28 28);
+		--glass-fill: rgb(128 128 128 / 10%);
+		--glass-blur: 2px;
+		--glass-fallback-blur: 0.85rem;
+		--glass-contrast: 90%;
+		--glass-brightness: 78%;
+		--glass-inner-band: rgb(255 255 255 / 5%);
+		--glass-shadow: rgb(0 0 0 / 30%);
+		--glass-shadow-scrolled: rgb(0 0 0 / 38%);
+	}
+
+	:global(html[data-theme='dark']) .site-header[data-scrolled] .header-inner {
+		--glass-fill: rgb(128 128 128 / 16%);
+		--glass-blur: 2.5px;
+		--glass-fallback-blur: 0.95rem;
+		--glass-contrast: 82%;
+		--glass-brightness: 74%;
+	}
+
+	:global(html[data-theme='dark']) .theme-icon-moon {
+		display: none;
+	}
+
+	:global(html[data-theme='dark']) .theme-icon-sun {
+		display: block;
 	}
 
 	@media (max-width: 590px) {
@@ -443,7 +598,12 @@ import HeaderLink from './HeaderLink.astro';
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.nav-pill {
+		.nav-pill,
+		.theme-toggle::before {
+			transition: none;
+		}
+
+		.theme-toggle {
 			transition: none;
 		}
 
