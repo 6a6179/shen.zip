@@ -153,11 +153,13 @@ import HeaderLink from './HeaderLink.astro';
 		};
 
 		links.forEach((link) => {
-			link.addEventListener('pointerenter', () => {
+			link.addEventListener('pointerenter', (event) => {
+				if (event.pointerType === 'touch') return;
 				hoveredLink = link;
 				settlePill();
 			});
-			link.addEventListener('pointerleave', () => {
+			link.addEventListener('pointerleave', (event) => {
+				if (event.pointerType === 'touch') return;
 				if (hoveredLink === link) hoveredLink = null;
 				settlePill();
 			});
