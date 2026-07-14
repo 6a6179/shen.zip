@@ -1,0 +1,62 @@
+name: Update IPA repository
+
+on:
+  schedule:
+    # Every six hours, away from the top of the hour.
+    - cron: "17 */6 * * *"
+    # Re-download current assets weekly to catch in-place replacements.
+    - cron: "43 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Re-download and verify all current IPA files
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-ipa-repository
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out site repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check upstream releases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FORCE_UPDATE: ${{ inputs.force || 'false' }}
+          SCHEDULE: ${{ github.event.schedule || '' }}
+        run: |
+          args=()
+          if [[ "$FORCE_UPDATE" == "true" || "$SCHEDULE" == "43 4 * * 1" ]]; then
+            args+=(--force)
+          fi
+          python3 scripts/update_ipa_repo.py "${args[@]}"
+
+      - name: Validate source JSON
+        run: python3 -m json.tool public/repo.json >/dev/null
+
+      - name: Commit updates
+        run: |
+          if git diff --quiet -- public/repo.json checksums.json; then
+            echo "No upstream changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/repo.json checksums.json
+          git commit -m "chore(repo): update IPA source"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"

@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2026-07-14T23:55:22Z",
+  "apps": [
+    {
+      "name": "uYouEnhanced",
+      "sourceRepository": "https://github.com/arichornlover/uYouEnhanced",
+      "sourceFeed": "https://raw.githubusercontent.com/arichornlover/arichornlover.github.io/main/apps.json",
+      "downloadURL": "https://archive.org/download/YouTubeRebornPlus_19.10.5-4.2.6/yt-uYE-20442-304.ipa",
+      "size": 134673057,
+      "sha256": "97a867a179964aeb7e21e1bd069cbfc7681914894a9a89b5654c369be4aed356"
+    },
+    {
+      "name": "Hop",
+      "sourceRepository": "https://github.com/6a6179/Hop",
+      "release": "https://github.com/6a6179/Hop/releases/tag/unsigned-ipa-32.1",
+      "downloadURL": "https://github.com/6a6179/Hop/releases/download/unsigned-ipa-32.1/Hop-unsigned.ipa",
+      "size": 23402885,
+      "sha256": "bd7034f4478d1aa01a77bc6f63a2b8568dfaa68fd9befa5a4acf22a214ee9ab0"
+    },
+    {
+      "name": "Flappy Bird",
+      "sourceRepository": "https://github.com/brandonplank/flappybird",
+      "release": "https://github.com/brandonplank/flappybird/releases/tag/4.3",
+      "downloadURL": "https://github.com/brandonplank/flappybird/releases/download/4.3/org.brandonplank.flappybird.ipa",
+      "size": 2099365,
+      "sha256": "95994220d9f47050d484727c33a355f9d8fe3c41110466e443d00bb4eb6973d6"
+    }
+  ]
+}

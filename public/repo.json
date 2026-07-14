@@ -1,0 +1,162 @@
+{
+  "name": "Shen IPA Repository",
+  "identifier": "zip.shen.ipa-repository",
+  "subtitle": "Apps for Feather and other AltStore-compatible signers",
+  "description": "A personal AltStore-compatible source hosted at shen.zip.",
+  "website": "https://shen.zip",
+  "tintColor": "#171717",
+  "featuredApps": [
+    "com.google.ios.youtube",
+    "cat.string.hop",
+    "org.brandonplank.flappybird"
+  ],
+  "apps": [
+    {
+      "name": "uYouEnhanced",
+      "bundleIdentifier": "com.google.ios.youtube",
+      "developerName": "arichornlover & Various Contributors",
+      "subtitle": "uYouPlus with additional features",
+      "localizedDescription": "uYou is the best tweak for the YouTube app. uYouEnhanced is a modified version of qnblackcat's uYouPlus & MiRO92's uYou with even more features. Additional features include skipping sponsorships in videos, more PiP options, unlocking higher resolutions, disabling overlays, removing upsell alerts, dimming the UI, enabling the miniplayer, preventing notch issues, configuring A/B settings, and adding a timestamp button.",
+      "iconURL": "https://shen.zip/ipa-assets/icons/uyou-enhanced.png",
+      "tintColor": "#E81E8A",
+      "category": "photo-video",
+      "screenshots": [
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/1.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/2.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/3.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/4.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/5.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/6.jpeg"
+      ],
+      "screenshotURLs": [
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/1.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/2.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/3.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/4.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/5.jpeg",
+        "https://shen.zip/ipa-assets/screenshots/uyou-enhanced/6.jpeg"
+      ],
+      "versions": [
+        {
+          "version": "20.44.2",
+          "buildVersion": "20.44.2",
+          "marketingVersion": "20.44.2 / uYouEnhanced 3.0.4",
+          "date": "2026-02-24",
+          "localizedDescription": "Current YouTube IPA: \"20.44.2\"\nCurrent uYouEnhanced Version: \"3.0.4\"\n\nRELEASE 20.44.2 - 3.0.4: (2026-02-24)\n\n• Updated for YouTube 20.44.2\n• Updated App Version Spoofer to support versions 20.34.2–21.08.3\n• Marked older spoofer versions 19.01.1–19.20.2 as Deprecated ⚠️\n• LowContrastMode updated to 1.8.0 with reorganized code and iOS 16+ focus\n• Added new tweak: YTHidePlayerButtons 1.0.0\n• Added new tweak: YTweaks by fosterbarnes\n• Rewritten AppIconsOptionsController functionality\n• Updated Notifications Tab icon customization\n• Updated submodules\n• Removed options: Disable Modern Buttons & Disable Modern A/B Flags",
+          "downloadURL": "https://archive.org/download/YouTubeRebornPlus_19.10.5-4.2.6/yt-uYE-20442-304.ipa",
+          "size": 134673057,
+          "minOSVersion": "16.0",
+          "sha256": "97a867a179964aeb7e21e1bd069cbfc7681914894a9a89b5654c369be4aed356"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "aps-environment",
+          "com.apple.developer.associated-domains",
+          "com.apple.developer.coremedia.allow-alternate-video-decoder-selection",
+          "com.apple.developer.device-information.user-assigned-device-name",
+          "com.apple.developer.group-session",
+          "com.apple.developer.networking.multicast",
+          "com.apple.developer.networking.wifi-info",
+          "com.apple.developer.siri",
+          "com.apple.developer.storekit.request-data",
+          "com.apple.developer.usernotifications.communication",
+          "com.apple.developer.usernotifications.time-sensitive",
+          "com.apple.security.application-groups",
+          "get-task-allow",
+          "keychain-access-groups"
+        ],
+        "privacy": {
+          "NSAppleMusicUsageDescription": "This lets you add your own audio files to your videos.",
+          "NSBluetoothPeripheralUsageDescription": "YouTube needs bluetooth access to scan for nearby Cast devices.",
+          "NSCameraUsageDescription": "This lets you create videos using the app.",
+          "NSContactsUsageDescription": "Your contacts will be sent to YouTube servers to help you find friends to share videos with.",
+          "NSLocalNetworkUsageDescription": "Access to your network allows YouTube to discover and connect to devices such as your TV.",
+          "NSLocationWhenInUseUsageDescription": "Makes it easier for you to attach location information to your videos and live streams and allows for features such as improved recommendations and ads.",
+          "NSMicrophoneUsageDescription": "This lets you include audio with your videos and search using your voice.",
+          "NSPhotoLibraryUsageDescription": "This lets you upload media you've already created.",
+          "NSUserTrackingUsageDescription": "To personalize ads and provide ad measurement, YouTube will link activity from this app with activity from non-Google apps and websites."
+        }
+      },
+      "version": "20.44.2",
+      "versionDate": "2026-02-24",
+      "versionDescription": "Current YouTube IPA: \"20.44.2\"\nCurrent uYouEnhanced Version: \"3.0.4\"\n\nRELEASE 20.44.2 - 3.0.4: (2026-02-24)\n\n• Updated for YouTube 20.44.2\n• Updated App Version Spoofer to support versions 20.34.2–21.08.3\n• Marked older spoofer versions 19.01.1–19.20.2 as Deprecated ⚠️\n• LowContrastMode updated to 1.8.0 with reorganized code and iOS 16+ focus\n• Added new tweak: YTHidePlayerButtons 1.0.0\n• Added new tweak: YTweaks by fosterbarnes\n• Rewritten AppIconsOptionsController functionality\n• Updated Notifications Tab icon customization\n• Updated submodules\n• Removed options: Disable Modern Buttons & Disable Modern A/B Flags",
+      "downloadURL": "https://archive.org/download/YouTubeRebornPlus_19.10.5-4.2.6/yt-uYE-20442-304.ipa",
+      "size": 134673057
+    },
+    {
+      "name": "Hop",
+      "bundleIdentifier": "cat.string.hop",
+      "developerName": "6a6179",
+      "subtitle": "Open-source Xray proxy client",
+      "localizedDescription": "An open-source iOS 26+ proxy client built with SwiftUI, a Network Extension packet tunnel, and a client-only Xray-core bridge. Supports VLESS, REALITY, Trojan, Hysteria2, Shadowsocks, VMess, WireGuard, subscriptions, routing, QR import, latency testing, and local geodata. Tunnel operation requires signing that preserves the Packet Tunnel, App Groups, and Keychain entitlements.",
+      "iconURL": "https://shen.zip/ipa-assets/icons/hop.png",
+      "tintColor": "#5D70E8",
+      "category": "utilities",
+      "beta": true,
+      "versions": [
+        {
+          "version": "0.1.2",
+          "buildVersion": "32",
+          "marketingVersion": "Hop unsigned IPA 32.1",
+          "date": "2026-07-14T21:00:44Z",
+          "localizedDescription": "Unsigned IPA built from 6a6179/Hop@49622fb916b5d3eab90cd498792fa4af121bbcf7.\n\n- Branch/ref: codex/optimize-tunnel-memory\n- Workflow run: https://github.com/6a6179/Hop/actions/runs/29367233834\n- Product build (CFBundleVersion): 32\n- Size: 23402885 bytes\n- SHA-256: bd7034f4478d1aa01a77bc6f63a2b8568dfaa68fd9befa5a4acf22a214ee9ab0\n\nThis IPA is ad-hoc fakesigned: each binary carries its required entitlements (Packet Tunnel, App Groups, Keychain) with a placeholder XXXXXXXXXX. team prefix so sideload signers can re-map them. It still needs proper signing/provisioning before installation on a physical device. When re-signing, make sure your tool signs the embedded HopTunnel.appex with the Packet Tunnel entitlement — without it iOS kills the VPN extension at launch.",
+          "downloadURL": "https://github.com/6a6179/Hop/releases/download/unsigned-ipa-32.1/Hop-unsigned.ipa",
+          "size": 23402885,
+          "minOSVersion": "26.0",
+          "sha256": "bd7034f4478d1aa01a77bc6f63a2b8568dfaa68fd9befa5a4acf22a214ee9ab0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "com.apple.developer.networking.networkextension",
+          "com.apple.security.application-groups",
+          "keychain-access-groups"
+        ],
+        "privacy": {
+          "NSCameraUsageDescription": "Hop uses the camera to scan proxy node and subscription QR codes."
+        }
+      },
+      "version": "0.1.2",
+      "versionDate": "2026-07-14T21:00:44Z",
+      "versionDescription": "Unsigned IPA built from 6a6179/Hop@49622fb916b5d3eab90cd498792fa4af121bbcf7.\n\n- Branch/ref: codex/optimize-tunnel-memory\n- Workflow run: https://github.com/6a6179/Hop/actions/runs/29367233834\n- Product build (CFBundleVersion): 32\n- Size: 23402885 bytes\n- SHA-256: bd7034f4478d1aa01a77bc6f63a2b8568dfaa68fd9befa5a4acf22a214ee9ab0\n\nThis IPA is ad-hoc fakesigned: each binary carries its required entitlements (Packet Tunnel, App Groups, Keychain) with a placeholder XXXXXXXXXX. team prefix so sideload signers can re-map them. It still needs proper signing/provisioning before installation on a physical device. When re-signing, make sure your tool signs the embedded HopTunnel.appex with the Packet Tunnel entitlement — without it iOS kills the VPN extension at launch.",
+      "downloadURL": "https://github.com/6a6179/Hop/releases/download/unsigned-ipa-32.1/Hop-unsigned.ipa",
+      "size": 23402885
+    },
+    {
+      "name": "Flappy Bird",
+      "bundleIdentifier": "org.brandonplank.flappybird",
+      "developerName": "Brandon Plank & ThatcherDev",
+      "subtitle": "A Swift Flappy Bird clone",
+      "localizedDescription": "A close Flappy Bird clone written in Swift with support for iPhone and iPad. Version 4.3 removes the leaderboard, accounts, and anti-cheat components.",
+      "iconURL": "https://shen.zip/ipa-assets/icons/flappy-bird.png",
+      "tintColor": "#70C5CE",
+      "category": "games",
+      "versions": [
+        {
+          "version": "4.3",
+          "buildVersion": "1",
+          "marketingVersion": "4.3",
+          "date": "2022-06-14T20:54:11Z",
+          "localizedDescription": "**Full Changelog**: https://github.com/crypticplank/flappybird/compare/4.2.0...4.3\r\n* Removed Leaderboard\r\n* Removed Accounts\r\n* Removed Anti-Cheat",
+          "downloadURL": "https://github.com/brandonplank/flappybird/releases/download/4.3/org.brandonplank.flappybird.ipa",
+          "size": 2099365,
+          "minOSVersion": "13.0",
+          "sha256": "95994220d9f47050d484727c33a355f9d8fe3c41110466e443d00bb4eb6973d6"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "get-task-allow"
+        ],
+        "privacy": {}
+      },
+      "version": "4.3",
+      "versionDate": "2022-06-14T20:54:11Z",
+      "versionDescription": "**Full Changelog**: https://github.com/crypticplank/flappybird/compare/4.2.0...4.3\r\n* Removed Leaderboard\r\n* Removed Accounts\r\n* Removed Anti-Cheat",
+      "downloadURL": "https://github.com/brandonplank/flappybird/releases/download/4.3/org.brandonplank.flappybird.ipa",
+      "size": 2099365
+    }
+  ],
+  "news": []
+}
