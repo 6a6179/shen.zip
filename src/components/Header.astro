@@ -428,12 +428,6 @@ import HeaderLink from './HeaderLink.astro';
 		transform: scale(0.94);
 	}
 
-	@media (hover: none) and (pointer: coarse) {
-		.wordmark::before {
-			transition: none;
-		}
-	}
-
 	.header-actions {
 		position: relative;
 		z-index: 2;
@@ -520,13 +514,12 @@ import HeaderLink from './HeaderLink.astro';
 		inset: 0.2rem;
 		z-index: -1;
 		border-radius: inherit;
-		background: transparent;
-		box-shadow: none;
+		background: rgb(128 128 128 / 13%);
+		box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 12%);
 		content: '';
+		opacity: 0;
 		pointer-events: none;
-		transition:
-			background-color 150ms ease,
-			box-shadow 150ms ease;
+		transition: opacity 150ms ease;
 	}
 
 	.theme-toggle:focus-visible {
@@ -534,8 +527,7 @@ import HeaderLink from './HeaderLink.astro';
 	}
 
 	.theme-toggle:focus-visible::before {
-		background: rgb(128 128 128 / 13%);
-		box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 12%);
+		opacity: 1;
 	}
 
 	@media (hover: hover) and (pointer: fine) {
@@ -544,13 +536,24 @@ import HeaderLink from './HeaderLink.astro';
 		}
 
 		.theme-toggle:hover::before {
-			background: rgb(128 128 128 / 13%);
-			box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 12%);
+			opacity: 1;
 		}
 	}
 
 	.theme-toggle:active {
+		color: var(--foreground);
 		transform: scale(0.94);
+	}
+
+	.theme-toggle:active::before {
+		opacity: 1;
+	}
+
+	@media (hover: none) and (pointer: coarse) {
+		.wordmark::before,
+		.theme-toggle::before {
+			transition: none;
+		}
 	}
 
 	.theme-icon {
